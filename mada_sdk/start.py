@@ -1,8 +1,9 @@
 import asyncio
 import json
+import httpx
 from redis import asyncio as aioredis
 
-from src.process import Process, ProcessData
+from .process import Process, ProcessData, ProcessResult
 
 
 async def main(redis_url: str, method: str, process: Process):
@@ -20,9 +21,23 @@ async def main(redis_url: str, method: str, process: Process):
             model.id = data["id"]
             model.data_id = data["data_id"]
             model.url = data["url"]
-            asyncio.create_task(process.run(model))
+            bg_task = asyncio.create_task(process.run(model))
+            bg_task.add_done_callback(lambda t: t.result())  # Handle exceptions if needed
     except KeyboardInterrupt:
         pubsub.unsubscribe(channel_name)
+
+
+def done_callback(result: ProcessResult):
+    print(f"Process completed with result: {result: ProcessResult.content} of type {result: ProcessResult.file_type}")
+
+
+async def get_process_data(uuid: int) -> ProcessData:
+    async with httpx.AsyncClient() as client:
+        response = await client.get(f"http://label.madacode.com/openapi/process/{uuid}")
+        if response.status_code == 200:
+            return ProcessData(**response.json())
+        else:
+            raise Exception(f"Error fetching process data: {response.status_code}")
 
 
 def start(redis_url: str, method: str, process: Process):

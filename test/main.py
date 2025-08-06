@@ -1,5 +1,5 @@
-from src.online import start
-from src.process import Process, ProcessData
+from mada_sdk import start
+from mada_sdk import Process, ProcessData
 
 
 class Slice(Process):

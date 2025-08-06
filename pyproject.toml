@@ -1,10 +1,18 @@
 [project]
 name = "mada-sdk"
 version = "0.1.0"
-description = "Add your description here"
+description = "Receive mada label platform data and process it."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "httpx>=0.28.1",
     "redis>=5.2.1",
     "setuptools>=78.1.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/luoyou/mada_sdk"
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
